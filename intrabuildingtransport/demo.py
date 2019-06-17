@@ -24,8 +24,8 @@ from intrabuildingtransport.mansion.mansion_config import MansionConfig
 from intrabuildingtransport.mansion.person_generators.generator_proxy import PersonGenerator
 
 #Switch the dispatcher here
-from intrabuildingtransport.dispatchers.rule_benchmark_dispatcher import RuleBenchmarkDispatcher as Dispatcher
-#from intrabuildingtransport.dispatchers.rl_benchmark_dispatcher.rl_dispatcher import RLBenchmarkDispatcher as Dispatcher
+#from intrabuildingtransport.dispatchers.rule_benchmark_dispatcher import RuleBenchmarkDispatcher as Dispatcher
+from intrabuildingtransport.dispatchers.rl_benchmark_dispatcher.rl_dispatcher import RLBenchmarkDispatcher as Dispatcher
 
 
 def reward(time_consumption, energy_consumption, given_up_persons):
@@ -46,7 +46,7 @@ def run_mansion_main(mansion_sim, dispatcher_handle, iteration, log_level):
     state = mansion_sim.state
     # print(state)
     action = dispatcher_handle.policy(state)
-    print ("action:", action)
+    # print ("action:", action)
     time_consume, energy_consume, given_up_persons = mansion_sim.run_mansion(action)
     r = reward(time_consume, energy_consume, given_up_persons)
     dispatcher_handle.feedback(state, action, r)
