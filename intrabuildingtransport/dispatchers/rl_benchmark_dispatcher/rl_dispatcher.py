@@ -29,9 +29,8 @@ class RLBenchmarkDispatcher(DispatcherBase):
     self._ele_num = self._mansion._elevator_number
     self._max_floor = self._mansion._floor_number
     self._global_step = 0
-    for i in range(self._mansion._elevator_number):
-      self._rpm = ReplayMemory(MEMORY_SIZE, self._obs_dim, 1)
-      self._model = RLDispatcherModel(self._act_dim)
+    self._rpm = ReplayMemory(MEMORY_SIZE, self._obs_dim, 1)
+    self._model = RLDispatcherModel(self._act_dim)
     hyperparas = {
         'action_dim': self._act_dim,
         'lr': 5.0e-4,

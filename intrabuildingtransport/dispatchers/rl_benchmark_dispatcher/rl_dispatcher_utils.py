@@ -75,7 +75,7 @@ def ele_state_preprocessing(ele_state):
     target_floor_binaries[target_floor - 1] = 1.0
   ele_feature.extend(target_floor_binaries)
 
-  dispatch_floor_binaries = [0.0 for i in range(ele_state.MaximumFloor)]
+  dispatch_floor_binaries = [0.0 for i in range(ele_state.MaximumFloor + 1)]
   dispatch_floor_binaries[ele_state.CurrentDispatchTarget] = 1.0
   ele_feature.extend(dispatch_floor_binaries)
   ele_feature.append(ele_state.DispatchTargetDirection)
@@ -84,13 +84,13 @@ def ele_state_preprocessing(ele_state):
 
 def obs_dim(mansion):
   assert isinstance(mansion, MansionManager)
-  ele_dim = mansion._floor_number * 3 + 21 + 3 + 3 + 5 + 1
+  ele_dim = mansion._floor_number * 3 + 34 
   obs_dim = ele_dim * mansion._elevator_number + mansion._floor_number * 2 + mansion._elevator_number
   return obs_dim
 
 def act_dim(mansion):
   assert isinstance(mansion, MansionManager)
-  return mansion._floor_number * 2 + 1
+  return mansion._floor_number * 2 + 2
 
 def mansion_state_preprocessing(mansion_state):
   ele_features = list()
@@ -122,8 +122,10 @@ def mansion_state_preprocessing(mansion_state):
 def action_idx_to_action(action_idx, act_dim):
   assert isinstance(action_idx, int)
   assert isinstance(act_dim, int)
-  realdim = act_dim - 1
+  realdim = act_dim - 2
   if(action_idx == realdim):
+    return ElevatorAction(0, 1)
+  elif(action_idx == realdim + 1):
     return ElevatorAction(-1, 1)
   action = action_idx
   if(action_idx < realdim / 2):
@@ -138,9 +140,11 @@ def action_idx_to_action(action_idx, act_dim):
 def action_to_action_idx(action, act_dim):
   assert isinstance(action, ElevatorAction)
   assert isinstance(act_dim, int)
-  realdim = act_dim - 1
-  if(action.TargetFloor < 0):
+  realdim = act_dim - 2
+  if(action.TargetFloor == 0):
     return realdim
+  elif(action.TargetFloor < 0):
+    return realdim + 1
   action_idx = 0
   if(action.DirectionIndicator < 0):
     action_idx += realdim / 2
