@@ -66,7 +66,6 @@ class Dispatcher(DispatcherBase):
       self._loss_queue.appendleft(cost)
       if(len(self._loss_queue) > self._statistic_freq):
         self._loss_queue.pop()
-      print (sum(self._loss_queue))
       if(self._global_step % self._statistic_freq == 0):
         print("Temporal Difference Error(Average) %f" % (sum(self._loss_queue)/float(len(self._loss_queue))))
 

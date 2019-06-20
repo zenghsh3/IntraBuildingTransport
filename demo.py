@@ -41,9 +41,7 @@ def run_mansion_main(mansion_env, policy_handle, iteration):
   while i < iteration:
     i += 1
     state = mansion_env.state
-    # print(state)
     action = policy_handle.policy(state)
-    print ("action:", action)
     _, r, _ = mansion_env.step(action)
     policy_handle.feedback(state, action, r)
     acc_reward += r
