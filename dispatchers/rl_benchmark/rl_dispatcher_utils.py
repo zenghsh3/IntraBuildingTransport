@@ -2,7 +2,8 @@ import sys
 import random
 import parl
 import numpy as np
-from intrabuildingtransport.mansion.utils import ElevatorState, ElevatorAction, MansionState
+from intrabuildingtransport.mansion.utils import ElevatorState, ElevatorAction
+from intrabuildingtransport.mansion.utils import MansionAttribute, MansionState
 from intrabuildingtransport.mansion.utils import EPSILON, HUGE
 from intrabuildingtransport.mansion.mansion_config import MansionConfig
 from intrabuildingtransport.mansion.mansion_manager import MansionManager
@@ -13,7 +14,9 @@ def discretize(value, n_dim, min_val, max_val):
   with the value below min_val being [1, 0, 0, ..., 0]
   and the value above max_val being [0, 0, ..., 0, 1]
   '''
-  assert n_dim > 1
+  assert n_dim > 0
+  if(n_dim == 1):
+    return [1]
   delta = (max_val - min_val) / float(n_dim - 1)
   active_pos = int((value - min_val)/delta + 0.5)
   active_pos = min(n_dim - 1, active_pos)
@@ -30,7 +33,9 @@ def linear_discretize(value, n_dim, min_val, max_val):
   e.g. if n_dim = 2, min_val = 1.0, max_val = 2.0
     if value  = 1.5 returns [0.5, 0.5], if value = 1.8 returns [0.2, 0.8]
   '''
-  assert n_dim > 1
+  assert n_dim > 0
+  if(n_dim == 1):
+    return [1]
   delta = (max_val - min_val) / float(n_dim - 1)
   active_pos = int((value - min_val)/delta + 0.5)
   active_pos = min(n_dim - 2, active_pos)
@@ -82,15 +87,15 @@ def ele_state_preprocessing(ele_state):
 
   return ele_feature
 
-def obs_dim(mansion):
-  assert isinstance(mansion, MansionManager)
-  ele_dim = mansion._floor_number * 3 + 34 
-  obs_dim = ele_dim * mansion._elevator_number + mansion._floor_number * 2 + mansion._elevator_number
+def obs_dim(mansion_attr):
+  assert isinstance(mansion_attr, MansionAttribute)
+  ele_dim = mansion_attr.NumberOfFloor * 3 + 34 
+  obs_dim = (ele_dim + 1) * mansion_attr.ElevatorNumber + mansion_attr.NumberOfFloor * 2
   return obs_dim
 
-def act_dim(mansion):
-  assert isinstance(mansion, MansionManager)
-  return mansion._floor_number * 2 + 2
+def act_dim(mansion_attr):
+  assert isinstance(mansion_attr, MansionAttribute)
+  return mansion_attr.NumberOfFloor * 2 + 2
 
 def mansion_state_preprocessing(mansion_state):
   ele_features = list()
@@ -112,7 +117,7 @@ def mansion_state_preprocessing(mansion_state):
     elevator_id_vec = discretize(idx + 1, len(mansion_state.ElevatorStates), 1, len(mansion_state.ElevatorStates))
     idx_array = list(range(len(mansion_state.ElevatorStates)))
     idx_array.remove(idx)
-    random.shuffle(idx_array)
+    #random.shuffle(idx_array)
     man_features.append(ele_features[idx])
     for left_idx in idx_array:
       man_features[idx] = man_features[idx] + ele_features[left_idx]
@@ -133,7 +138,7 @@ def action_idx_to_action(action_idx, act_dim):
     action += 1
   else:
     direction = -1
-    action -= realdim / 2
+    action -= int(realdim / 2)
     action += 1
   return ElevatorAction(action, direction)
 

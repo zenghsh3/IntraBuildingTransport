@@ -44,6 +44,8 @@ ElevatorAction = collections.namedtuple("Action", ["TargetFloor", "DirectionIndi
 # ElevatorStates: A list of the ElevatorState tuple
 # RequiringUpFloors & RequiringDownFloors: the floor that requires to go up / down
 MansionState = collections.namedtuple("MansionState", ["ElevatorStates", "RequiringUpwardFloors", "RequiringDownwardFloors"])
+#Static attributes of the mansion
+MansionAttribute = collections.namedtuple('MansionAttribute', ["ElevatorNumber", "NumberOfFloor", "FloorHeight"])
 
 #Formulated Simulate Time
 SimulatedTime = collections.namedtuple("SimulatedTime", ["Day", "Hour", "Min", "Sec"])
