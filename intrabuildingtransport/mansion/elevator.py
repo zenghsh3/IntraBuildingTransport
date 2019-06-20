@@ -666,6 +666,8 @@ class Elevator(object):
     Impose standard actions
     '''
     assert isinstance(action, ElevatorAction)
+    assert isinstance(action.TargetFloor, int)
+    assert isinstance(action.DirectionIndicator, int)
     if(action.TargetFloor >= 0 and action.TargetFloor <= self._config.number_of_floors):
       self._dispatch_target = action.TargetFloor
       self._dispatch_target_direction = action.DirectionIndicator
