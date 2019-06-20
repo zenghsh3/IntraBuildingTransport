@@ -17,7 +17,11 @@ class Dispatcher(DispatcherBase):
     get_stop_lift = []
     get_down_lift = []
     ele_is_stopped = []
+<<<<<<< HEAD:dispatchers/rule_benchmark/dispatcher.py
     ret_actions = [ElevatorAction(-1, 1) for i in range(self._mansion_attr.ElevatorNumber)]
+=======
+    ret_actions = [ElevatorAction(0, 1) for i in range(self._mansion._elevator_number)]
+>>>>>>> ea6e8f791a265ecafc61443a71861eafe2effb51:intrabuildingtransport/dispatchers/rule_benchmark_dispatcher.py
 
     idle_ele_queue = queue.Queue()
     upward_floor_address_dict = dict()
@@ -39,11 +43,13 @@ class Dispatcher(DispatcherBase):
         sel_priority = -HUGE
         sel_floor = -1
         for upward_floor in state.RequiringUpwardFloors:
-          if(upward_floor < state.ElevatorStates[sel_ele].Floor + EPSILON):
+          if(upward_floor < state.ElevatorStates[sel_ele].Floor - EPSILON):
             continue
-          priority = - state.ElevatorStates[sel_ele].Floor + upward_floor
+          priority = state.ElevatorStates[sel_ele].Floor - upward_floor
           if(upward_floor in state.ElevatorStates[sel_ele].ReservedTargetFloors):
             priority = min(0.0, priority + 5.0)
+          if (state.ElevatorStates[sel_ele].Velocity < EPSILON):
+            priority -= 5.0
           if(priority > upward_floor_address_dict[upward_floor][1] and priority > sel_priority):
             sel_priority = priority
             sel_floor = upward_floor
@@ -51,12 +57,10 @@ class Dispatcher(DispatcherBase):
         if(sel_floor > 0):
           ret_actions[sel_ele] = ElevatorAction(sel_floor, 1)
           if(upward_floor_address_dict[sel_floor][0] >= 0):
+            ret_actions[upward_floor_address_dict[sel_floor][0]] = ElevatorAction(0, 1)
             idle_ele_queue.put(upward_floor_address_dict[sel_floor][0])
           upward_floor_address_dict[sel_floor] = (sel_ele, sel_priority)
           assigned = True
-
-
-        #print ("sel floor", sel_floor, sel_priority)
 
         # In case no floor is assigned to the current elevator, we search all requiring downward floor, find the largest floor and assign it to the elevator
         if(not assigned):
@@ -70,6 +74,8 @@ class Dispatcher(DispatcherBase):
               priority =  - state.ElevatorStates[sel_ele].Floor - EPSILON + max_unassigned_down_floor
               downward_floor_address_dict[max_unassigned_down_floor] = (sel_ele, priority)
 
+        # print (sel_ele, "going up, sel floor", ret_actions[sel_ele], sel_priority)
+
       if(state.ElevatorStates[sel_ele].Direction < 0):
         assigned = False
         sel_priority = -HUGE
@@ -77,9 +83,11 @@ class Dispatcher(DispatcherBase):
         for downward_floor in state.RequiringDownwardFloors:
           if(downward_floor > state.ElevatorStates[sel_ele].Floor + EPSILON):
             continue
-          priority = state.ElevatorStates[sel_ele].Floor - downward_floor
+          priority = - state.ElevatorStates[sel_ele].Floor + downward_floor
           if(downward_floor in state.ElevatorStates[sel_ele].ReservedTargetFloors):
             priority = min(0.0, priority + 5.0)
+          if (state.ElevatorStates[sel_ele].Velocity < EPSILON):
+            priority -= 5.0
           if(priority > downward_floor_address_dict[downward_floor][1] and priority > sel_priority):
             sel_priority = priority
             sel_floor = downward_floor
@@ -87,6 +95,7 @@ class Dispatcher(DispatcherBase):
         if(sel_floor > 0):
           ret_actions[sel_ele] = ElevatorAction(sel_floor, 1)
           if(downward_floor_address_dict[sel_floor][0] >= 0):
+            ret_actions[downward_floor_address_dict[sel_floor][0]] = ElevatorAction(0, 1)
             idle_ele_queue.put(downward_floor_address_dict[sel_floor][0])
           downward_floor_address_dict[sel_floor] = (sel_ele, sel_priority)
           assigned = True
@@ -102,6 +111,8 @@ class Dispatcher(DispatcherBase):
               ret_actions[sel_ele] = ElevatorAction(min_unassigned_up_floor, 1)
               priority = state.ElevatorStates[sel_ele].Floor + EPSILON - min_unassigned_up_floor
               upward_floor_address_dict[min_unassigned_up_floor] = (sel_ele, priority)
+
+        # print (sel_ele, "going down, sel floor", ret_actions[sel_ele], sel_priority)
 
       if(state.ElevatorStates[sel_ele].Direction == 0):
         # in case direction == 0,  select the closest requirements
@@ -133,6 +144,7 @@ class Dispatcher(DispatcherBase):
             if(downward_floor_address_dict[sel_floor][0] >= 0):
               idle_ele_queue.put(downward_floor_address_dict[sel_floor][0])
             downward_floor_address_dict[sel_floor] = (sel_ele, sel_priority)
+        # print(sel_ele, "stay still, sel floor", ret_actions[sel_ele], sel_priority)
 
     #print min_unaddressed_up_lift, max_unaddressed_down_lift, state.RequiringUpwardFloors, state.RequiringDownwardFloors
     return ret_actions
