@@ -147,6 +147,6 @@ def action_to_action_idx(action, act_dim):
     return realdim + 1
   action_idx = 0
   if(action.DirectionIndicator < 0):
-    action_idx += realdim / 2
+    action_idx += int(realdim / 2)
   action_idx += action.TargetFloor - 1
   return action_idx
