@@ -17,11 +17,7 @@ class Dispatcher(DispatcherBase):
     get_stop_lift = []
     get_down_lift = []
     ele_is_stopped = []
-<<<<<<< HEAD:dispatchers/rule_benchmark/dispatcher.py
-    ret_actions = [ElevatorAction(-1, 1) for i in range(self._mansion_attr.ElevatorNumber)]
-=======
     ret_actions = [ElevatorAction(0, 1) for i in range(self._mansion._elevator_number)]
->>>>>>> ea6e8f791a265ecafc61443a71861eafe2effb51:intrabuildingtransport/dispatchers/rule_benchmark_dispatcher.py
 
     idle_ele_queue = queue.Queue()
     upward_floor_address_dict = dict()
