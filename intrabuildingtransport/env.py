@@ -1,9 +1,9 @@
 import sys
-import argparse
-import configparser
 sys.path.append('.')
 sys.path.append('..')
 import random
+import configparser
+
 from intrabuildingtransport.mansion.mansion_manager import MansionManager
 from intrabuildingtransport.mansion.utils import ElevatorState, MansionState
 from intrabuildingtransport.mansion.mansion_config import MansionConfig
