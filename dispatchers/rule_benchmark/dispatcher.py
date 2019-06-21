@@ -22,7 +22,7 @@ class Dispatcher(DispatcherBase):
         ret_actions = [
             ElevatorAction(
                 0, 1) for i in range(
-                self._mansion._elevator_number)]
+                self._mansion_attr.ElevatorNumber)]
 
         idle_ele_queue = queue.Queue()
         upward_floor_address_dict = dict()

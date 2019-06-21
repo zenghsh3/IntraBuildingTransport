@@ -52,17 +52,20 @@ def run_mansion_main(mansion_env, policy_handle, iteration):
             acc_reward = 0.0
 
 # run main program with args
-
-
 def run_main(args):
-    parser = argparse.ArgumentParser(description='Run elevator simulation')
-    parser.add_argument('configfile', type=str,  # default='../config.ini',
-                        help='configuration file for running elevators')
-    parser.add_argument('iterations', type=int, default=100000000,
-                        help='total number of iterations')
-    parser.add_argument('controlpolicy', type=str, default="rule_benchmark",
-                        help='policy type: rule_benchmark or others')
     args = parser.parse_args(args)
+
+    parser = argparse.ArgumentParser(description='Run elevator simulation')
+    parser.add_argument('--configfile', type=str, #default='../config.ini',
+                            help='configuration file for running elevators')
+    parser.add_argument('--iterations', type=int, default=100000000,
+                            help='total number of iterations')
+    parser.add_argument('--controlpolicy', type=str, default='rule_benchmark',
+                            help='policy type: rule_benchmark or others')
+    args = parser.parse_args(args)
+    print('configfile:', args.configfile)
+    print('iterations:', args.iterations)
+    print('controlpolicy:', args.controlpolicy)
 
     control_module = ("dispatchers.{}.dispatcher"
                       .format(args.controlpolicy))
