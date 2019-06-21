@@ -23,6 +23,8 @@ from intrabuildingtransport.mansion.mansion_config import MansionConfig
 from intrabuildingtransport.mansion.person_generators.generator_proxy import PersonGenerator
 from intrabuildingtransport.env import IntraBuildingEnv
 
+import qa_test
+
 #Switch the dispatcher here
 #from intrabuildingtransport.dispatchers.rule_benchmark_dispatcher import RuleBenchmarkDispatcher as Dispatcher
 
@@ -47,6 +49,10 @@ def run_mansion_main(mansion_env, policy_handle, iteration):
     acc_reward += r
     #acc_time += time_consume
     #acc_energy += energy_consume
+
+    qa_test.print_state(state, action)
+    qa_test.state_check(state, mansion_env.state, action)
+
     if(i % 3600 == 0):
       print("Accumulated Reward: %f, Mansion Status: %s"%(acc_reward, mansion_env.statistics))
       #acc_time = 0.0
@@ -56,13 +62,16 @@ def run_mansion_main(mansion_env, policy_handle, iteration):
 #run main program with args
 def run_main(args):
   parser = argparse.ArgumentParser(description='Run elevator simulation')
-  parser.add_argument('configfile', type=str, #default='../config.ini',
+  parser.add_argument('--configfile', type=str, #default='../config.ini',
                           help='configuration file for running elevators')
-  parser.add_argument('iterations', type=int, default=100000000,
+  parser.add_argument('--iterations', type=int, default=100000000,
                           help='total number of iterations')
-  parser.add_argument('controlpolicy', type=str, default="rule_benchmark",
+  parser.add_argument('--controlpolicy', type=str, default='rule_benchmark',
                           help='policy type: rule_benchmark or others')
   args = parser.parse_args(args)
+  print('configfile:', args.configfile)
+  print('iterations:', args.iterations)
+  print('controlpolicy:', args.controlpolicy)
 
   control_module = ("dispatchers.{}.dispatcher"
       .format(args.controlpolicy))
