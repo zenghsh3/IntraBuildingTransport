@@ -8,7 +8,7 @@ import random
 import collections
 from intrabuildingtransport.mansion.elevator import Elevator
 from intrabuildingtransport.mansion.utils import PersonType
-from intrabuildingtransport.mansion.utils import PersonType, MansionState, ElevatorState
+from intrabuildingtransport.mansion.utils import MansionAttribute, MansionState, ElevatorState
 from intrabuildingtransport.mansion.utils import EPSILON, ENTERING_TIME
 from intrabuildingtransport.mansion.mansion_config import MansionConfig
 from intrabuildingtransport.mansion.person_generators.generator_proxy import PersonGenerator
@@ -200,6 +200,13 @@ class MansionManager(object):
     Get Mansion Statistics
     '''
     return {"DeliveredPersons":self._delivered_person, "GeneratedPersons":self._generated_person, "AbandonedPersons":self._abandoned_person}
+
+  @property
+  def attribute(self):
+    '''
+    returns all kinds of attributes
+    '''
+    return MansionAttribute(self._elevator_number, self._floor_number, self._floor_height)
 
   @property
   def config(self):

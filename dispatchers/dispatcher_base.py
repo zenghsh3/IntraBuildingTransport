@@ -1,6 +1,7 @@
 import sys
 import random
 from intrabuildingtransport.mansion.utils import EPSILON, HUGE
+from intrabuildingtransport.mansion.utils import MansionAttribute
 
 class DispatcherBase(object):
   '''
@@ -9,8 +10,9 @@ class DispatcherBase(object):
   The policy function receives MansionState and output ElevatorAction Lists
   The feedback function receives reward
   '''
-  def link_mansion(self, mansion):
-    self._mansion = mansion
+  def link_mansion(self, mansion_attr):
+    assert isinstance(mansion_attr, MansionAttribute)
+    self._mansion_attr = mansion_attr
 
   def load_settings(self):
     pass

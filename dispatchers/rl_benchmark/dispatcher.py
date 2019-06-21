@@ -8,26 +8,24 @@ from collections import deque
 
 from intrabuildingtransport.mansion.utils import ElevatorState, ElevatorAction, MansionState
 from intrabuildingtransport.mansion.utils import EPSILON, HUGE
-from intrabuildingtransport.dispatchers.dispatcher_base import DispatcherBase
-from intrabuildingtransport.dispatchers.rl_benchmark_dispatcher.rl_dispatcher_utils import mansion_state_preprocessing, obs_dim, act_dim
-from intrabuildingtransport.dispatchers.rl_benchmark_dispatcher.rl_dispatcher_utils import action_idx_to_action, action_to_action_idx
-from intrabuildingtransport.dispatchers.rl_benchmark_dispatcher.rl_dispatcher_model import RLDispatcherModel, ElevatorAgent
+from dispatchers.dispatcher_base import DispatcherBase
+from dispatchers.rl_benchmark.rl_dispatcher_utils import mansion_state_preprocessing, obs_dim, act_dim
+from dispatchers.rl_benchmark.rl_dispatcher_utils import action_idx_to_action, action_to_action_idx
+from dispatchers.rl_benchmark.rl_dispatcher_model import RLDispatcherModel, ElevatorAgent
 from parl.algorithms import DQN
 from parl.utils import ReplayMemory
 
 MEMORY_SIZE = 1000000
 BATCH_SIZE = 64
 
-class RLBenchmarkDispatcher(DispatcherBase):
+class Dispatcher(DispatcherBase):
   '''
   An RL benchmark for elevator system
   '''
 
   def load_settings(self):
-    self._obs_dim = obs_dim(self._mansion)
-    self._act_dim = act_dim(self._mansion)
-    self._ele_num = self._mansion._elevator_number
-    self._max_floor = self._mansion._floor_number
+    self._obs_dim = obs_dim(self._mansion_attr)
+    self._act_dim = act_dim(self._mansion_attr)
     self._global_step = 0
     self._rpm = ReplayMemory(MEMORY_SIZE, self._obs_dim, 1)
     self._model = RLDispatcherModel(self._act_dim)
@@ -50,7 +48,7 @@ class RLBenchmarkDispatcher(DispatcherBase):
     for ele_act in action:
       new_actions.append(action_to_action_idx(ele_act, self._act_dim))
     if(self._global_step > self._warm_up_size):
-      for i in range(self._ele_num):
+      for i in range(self._mansion_attr.ElevatorNumber):
         self._rpm.append(
             self._last_observation_array[i], 
             self._last_action[i], 
@@ -69,16 +67,16 @@ class RLBenchmarkDispatcher(DispatcherBase):
       if(len(self._loss_queue) > self._statistic_freq):
         self._loss_queue.pop()
       if(self._global_step % self._statistic_freq == 0):
-        self._mansion._config.log_notice("Temporal Difference Error(Average) %f", sum(self._loss_queue)/float(len(self._loss_queue)))
+        print("Temporal Difference Error(Average) %f" % (sum(self._loss_queue)/float(len(self._loss_queue))))
 
   def policy(self, state):
     self._exploration_ratio = 500000.0 / (500000.0 + self._global_step) + 0.02
     observation_array = mansion_state_preprocessing(state)
     q_values = self._agent.predict(observation_array)
     ret_actions = list()
-    for i in range(self._ele_num):
+    for i in range(self._mansion_attr.ElevatorNumber):
       if(random.random() < self._exploration_ratio):
-        action = random.randint(1, self._max_floor)
+        action = random.randint(1, self._mansion_attr.NumberOfFloor)
       else:
         action = np.argmax(q_values[i])
       ret_actions.append(action_idx_to_action(int(action), self._act_dim))

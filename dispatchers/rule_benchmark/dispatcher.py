@@ -3,9 +3,9 @@ import random
 import queue
 from intrabuildingtransport.mansion.utils import ElevatorState, ElevatorAction, MansionState
 from intrabuildingtransport.mansion.utils import EPSILON, HUGE
-from intrabuildingtransport.dispatchers.dispatcher_base import DispatcherBase
+from dispatchers.dispatcher_base import DispatcherBase
 
-class RuleBenchmarkDispatcher(DispatcherBase):
+class Dispatcher(DispatcherBase):
   '''
   A rule benchmark demonstration of the dispatcher
   A dispatcher must provide policy and feedback function
@@ -103,7 +103,7 @@ class RuleBenchmarkDispatcher(DispatcherBase):
             for upward_floor in state.RequiringUpwardFloors:
               if(upward_floor_address_dict[upward_floor][0] < 0 and min_unassigned_up_floor > upward_floor):
                 min_unassigned_up_floor = upward_floor
-            if(min_unassigned_up_floor >= 0):
+            if(min_unassigned_up_floor >= 0 and min_unassigned_up_floor < HUGE - 1):
               ret_actions[sel_ele] = ElevatorAction(min_unassigned_up_floor, 1)
               priority = state.ElevatorStates[sel_ele].Floor + EPSILON - min_unassigned_up_floor
               upward_floor_address_dict[min_unassigned_up_floor] = (sel_ele, priority)
