@@ -37,14 +37,16 @@ def run_mansion_main(mansion_env, policy_handle, iteration):
         state = mansion_env.state
         action = policy_handle.policy(state)
         _, r, _ = mansion_env.step(action)
-        policy_handle.feedback(state, action, r)
+        output_info = policy_handle.feedback(state, action, r)
         acc_reward += r
         #acc_time += time_consume
         #acc_energy += energy_consume
+        if(isinstance(output_info, dict) and len(output_info) > 0):
+            mansion_env.log_notice("%s", output_info)
         if(i % 3600 == 0):
-            print(
-                "Accumulated Reward: %f, Mansion Status: %s" %
-                (acc_reward, mansion_env.statistics))
+            mansion_env.log_notice(
+                "Accumulated Reward: %f, Mansion Status: %s",
+                acc_reward, mansion_env.statistics)
             #acc_time = 0.0
             #acc_energy = 0.0
             acc_reward = 0.0
