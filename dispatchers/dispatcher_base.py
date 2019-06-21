@@ -20,7 +20,7 @@ class DispatcherBase(object):
         pass
 
     def feedback(self, state, action, r):
-        pass
+        return dict()
 
     def policy(self, state):
         raise NotImplementedError()

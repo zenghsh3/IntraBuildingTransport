@@ -9,9 +9,9 @@ from collections import deque
 from intrabuildingtransport.mansion.utils import ElevatorState, ElevatorAction, MansionState
 from intrabuildingtransport.mansion.utils import EPSILON, HUGE
 from dispatchers.dispatcher_base import DispatcherBase
-from dispatchers.rl_benchmark.rl_dispatcher_utils import mansion_state_preprocessing, obs_dim, act_dim
-from dispatchers.rl_benchmark.rl_dispatcher_utils import action_idx_to_action, action_to_action_idx
-from dispatchers.rl_benchmark.rl_dispatcher_model import RLDispatcherModel, ElevatorAgent
+from dispatchers.rl_benchmark.utils import mansion_state_preprocessing, obs_dim, act_dim
+from dispatchers.rl_benchmark.utils import action_idx_to_action, action_to_action_idx
+from dispatchers.rl_benchmark.model import RLDispatcherModel, ElevatorAgent
 from parl.algorithms import DQN
 from parl.utils import ReplayMemory
 
@@ -60,6 +60,7 @@ class Dispatcher(DispatcherBase):
         self._last_action = deepcopy(new_actions)
         self._last_reward = r
 
+        ret_dict = {}
         if self._rpm.size() > self._warm_up_size:
             batch_obs, batch_action, batch_reward, batch_next_obs, batch_terminal = \
                 self._rpm.sample_batch(BATCH_SIZE)
@@ -73,8 +74,10 @@ class Dispatcher(DispatcherBase):
             if(len(self._loss_queue) > self._statistic_freq):
                 self._loss_queue.pop()
             if(self._global_step % self._statistic_freq == 0):
-                print("Temporal Difference Error(Average) %f" %
-                      (sum(self._loss_queue) / float(len(self._loss_queue))))
+                ret_dict["Temporal Difference Error(Average)"] = \
+                    float(sum(self._loss_queue)) / float(len(self._loss_queue))
+
+        return ret_dict
 
     def policy(self, state):
         self._exploration_ratio = 500000.0 / \

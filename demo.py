@@ -53,7 +53,6 @@ def run_mansion_main(mansion_env, policy_handle, iteration):
 
 # run main program with args
 def run_main(args):
-    args = parser.parse_args(args)
 
     parser = argparse.ArgumentParser(description='Run elevator simulation')
     parser.add_argument('--configfile', type=str, #default='../config.ini',

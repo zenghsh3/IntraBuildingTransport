@@ -1,9 +1,9 @@
 import sys
 sys.path.append('./')
-from intrabuildingtransport.env import IntraBuildingEnv
-from intrabuildingtransport.mansion.utils import ElevatorAction
-from intrabuildingtransport.mansion.utils import MansionAttribute, MansionState
 
+from intrabuildingtransport.mansion.utils import MansionAttribute, MansionState
+from intrabuildingtransport.mansion.utils import ElevatorAction
+from intrabuildingtransport.env import IntraBuildingEnv
 
 env = IntraBuildingEnv("config.ini")
 env.seed(1998)
@@ -16,3 +16,5 @@ for i in range(100):
 assert isinstance(env.attribute, MansionAttribute)
 assert isinstance(env.state, MansionState)
 print(env.statistics)
+env.log_debug("This is a debug log")
+env.log_notice("This is a notice log")
