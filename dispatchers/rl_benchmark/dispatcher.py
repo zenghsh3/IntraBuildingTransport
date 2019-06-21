@@ -80,8 +80,10 @@ class Dispatcher(DispatcherBase):
         return ret_dict
 
     def policy(self, state):
-        self._exploration_ratio = 500000.0 / \
-            (500000.0 + self._global_step) + 0.02
+        self._exploration_ratio = 800000.0 / \
+            (800000.0 + self._global_step) + 0.1
+        if self._global_step > 200000 and self._global_step % 50000 <= 3000:
+            self._exploration_ratio = 0
         observation_array = mansion_state_preprocessing(state)
         q_values = self._agent.predict(observation_array)
         ret_actions = list()
