@@ -23,7 +23,6 @@ from intrabuildingtransport.mansion.mansion_config import MansionConfig
 from intrabuildingtransport.mansion.person_generators.generator_proxy import PersonGenerator
 from intrabuildingtransport.env import IntraBuildingEnv
 
-import qa_test
 
 #Switch the dispatcher here
 #from intrabuildingtransport.dispatchers.rule_benchmark_dispatcher import RuleBenchmarkDispatcher as Dispatcher
@@ -49,9 +48,6 @@ def run_mansion_main(mansion_env, policy_handle, iteration):
     acc_reward += r
     #acc_time += time_consume
     #acc_energy += energy_consume
-
-    qa_test.print_state(state, action)
-    qa_test.state_check(state, mansion_env.state, action)
 
     if(i % 3600 == 0):
       print("Accumulated Reward: %f, Mansion Status: %s"%(acc_reward, mansion_env.statistics))
