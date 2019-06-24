@@ -80,24 +80,23 @@ class Elevator(object):
             self._maximum_acceleration
 
     def __repr__(self):
-        return ("""Elevator Object: %s\n
-            State\n\t
-            Position: %f\n\t
-            Floors: %2.2f\n\t
-            Velocity: %f\n\t
-            Load: %f\n\t
-            Current Direction: %d\n\t
-            Dispatch Target: %d\n\t
-            Dispatch Target Direction: %d\n\t
-            Reserved Target Floors: %s\n\t
-            Button: %s\n\t
-            Is Overloaded: %d\n\t
-            Door Open Rate: %f\n\t
-            Is Door Opening: %d\n\t
-            Is Door Closing: %d\n\t
-            Loaded Persons: %s\n\t
-            Entering Persons: %s\n\t
-            Exiting Persons: %s\n\t"""
+      return ("""Elevator Object: %s. State:
+            Position: %f
+            Floors: %2.2f
+            Velocity: %f
+            Load: %f
+            Current Direction: %d
+            Dispatch Target: %d
+            Dispatch Target Direction: %d
+            Reserved Target Floors: %s
+            Button: %s
+            Is Overloaded: %d
+            Door Open Rate: %f
+            Is Door Opening: %d
+            Is Door Closing: %d
+            Loaded Persons: %s
+            Entering Persons: %s
+            Exiting Persons: %s"""
             ) % (self._name,
                     self._current_position, 
                     self._current_position / self._floor_height + 1.0,
