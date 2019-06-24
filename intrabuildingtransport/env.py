@@ -80,7 +80,7 @@ class IntraBuildingEnv():
 
     @property
     def log_debug(self):
-        return self._config.log_notice
+        return self._config.log_debug
 
     @property
     def log_notice(self):
