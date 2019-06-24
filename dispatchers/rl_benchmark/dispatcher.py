@@ -89,7 +89,7 @@ class Dispatcher(DispatcherBase):
         ret_actions = list()
         for i in range(self._mansion_attr.ElevatorNumber):
             if(random.random() < self._exploration_ratio):
-                action = random.randint(0, int(self._mansion_attr.NumberOfFloor * 2 + 1))
+                action = random.randint(0, self._act_dim)
             else:
                 action = np.argmax(q_values[i])
             ret_actions.append(
