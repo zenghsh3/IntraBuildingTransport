@@ -12,11 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
 import paddle.fluid as fluid
 import parl.layers as layers
 import numpy as np
 from parl.framework.model_base import Model
 from parl.framework.agent_base import Agent
+from parl.utils import get_gpu_count
 
 
 class RLDispatcherModel(Model):
@@ -42,6 +44,29 @@ class ElevatorAgent(Agent):
         self._update_target_steps = 1000
         self._global_step = 0
         super(ElevatorAgent, self).__init__(algorithm)
+
+        use_cuda = True if self.gpu_id >= 0 else False
+        if self.gpu_id >= 0:
+            assert get_gpu_count() == 1, 'Only support training in single GPU,\
+                    Please set environment variable: `export CUDA_VISIBLE_DEVICES=[GPU_ID_YOU_WANT_TO_USE]` .'
+
+        else:
+            cpu_num = os.environ.get('CPU_NUM')
+            assert cpu_num is not None and cpu_num == '1', 'Only support training in single CPU,\
+                    Please set environment variable:  `export CPU_NUM=1`.'
+
+        exec_strategy = fluid.ExecutionStrategy()
+        exec_strategy.num_threads = 1
+        exec_strategy.num_iteration_per_drop_scope = 10
+        build_strategy = fluid.BuildStrategy()
+        build_strategy.remove_unnecessary_lock = False
+
+        self.learn_pe = fluid.ParallelExecutor(
+            use_cuda=use_cuda,
+            main_program=self._learn_program,
+            build_strategy=build_strategy,
+            exec_strategy=exec_strategy,
+            )
 
     def build_program(self):
         self._pred_program = fluid.Program()
@@ -71,25 +96,7 @@ class ElevatorAgent(Agent):
             terminal = layers.data(name='terminal', shape=[], dtype='bool')
             self._cost = self.alg.define_learn(
                 obs, action, reward, next_obs, terminal)
-
-    def sample(self, obs):
-        sample = np.random.random()
-        if sample < self._exploration:
-            act = np.random.randint(self._action_dim)
-        else:
-            if np.random.random() < 0.01:
-                act = np.random.randint(self._action_dim)
-            else:
-                obs = np.expand_dims(obs, axis=0)
-                pred_Q = self.fluid_executor.run(
-                    self.pred_program,
-                    feed={'obs': obs.astype('float32')},
-                    fetch_list=[self._value])[0]
-                pred_Q = np.squeeze(pred_Q, axis=0)
-                act = np.argmax(pred_Q)
-        self.exploration = max(0.1, self.exploration - 1e-6)
-        return act
-
+    
     def predict(self, obs):
         #obs = np.expand_dims(obs, axis=0)
         pred_Q = self.fluid_executor.run(
@@ -114,6 +121,6 @@ class ElevatorAgent(Agent):
             'next_obs': next_obs.astype('float32'),
             'terminal': terminal
         }
-        cost = self.fluid_executor.run(
-            self._learn_program, feed=feed, fetch_list=[self._cost])[0]
+        cost = self.learn_pe.run(
+            feed=feed, fetch_list=[self._cost.name])[0]
         return cost
