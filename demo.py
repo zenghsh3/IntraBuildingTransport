@@ -13,7 +13,8 @@ Authors: wangfan04(wangfan04@baidu.com)
 Date:    2019/05/22 19:30:16
 """
 
-from intrabuildingtransport.env import IntraBuildingEnv
+import numpy as np
+from intrabuildingtransport.env import IntraBuildingEnv, RewardShapingWrapper
 from intrabuildingtransport.mansion.person_generators.generator_proxy import PersonGenerator
 from intrabuildingtransport.mansion.mansion_config import MansionConfig
 from intrabuildingtransport.mansion.utils import ElevatorState, MansionState
@@ -32,11 +33,12 @@ def run_mansion_main(mansion_env, policy_handle, iteration):
     acc_reward = 0.0
     #acc_time = 0.0
     #acc_energy = 0.0
+    episode_rewards = []
     while i < iteration:
         i += 1
         state = mansion_env.state
         action = policy_handle.policy(state)
-        _, r, _ = mansion_env.step(action)
+        _, r, _, _ = mansion_env.step(action)
         output_info = policy_handle.feedback(state, action, r)
         acc_reward += r
         #acc_time += time_consume
@@ -49,6 +51,8 @@ def run_mansion_main(mansion_env, policy_handle, iteration):
                 acc_reward, mansion_env.statistics)
             #acc_time = 0.0
             #acc_energy = 0.0
+            episode_rewards.append(acc_reward)
+            print('Evaluate: {}, {}'.format(np.mean(episode_rewards), len(episode_rewards)))
             acc_reward = 0.0
 
 # run main program with args
@@ -61,6 +65,8 @@ def run_main(args):
                             help='total number of iterations')
     parser.add_argument('--controlpolicy', type=str, default='rule_benchmark',
                             help='policy type: rule_benchmark or others')
+    parser.add_argument('--reward_shaping', action='store_true',
+                            help='If set will add reward shaping wrapper to env.')
     args = parser.parse_args(args)
     print('configfile:', args.configfile)
     print('iterations:', args.iterations)
@@ -71,6 +77,8 @@ def run_main(args):
     Dispatcher = __import__(control_module, fromlist=[None]).Dispatcher
 
     mansion_env = IntraBuildingEnv(args.configfile)
+    if args.reward_shaping:
+        mansion_env = RewardShapingWrapper(mansion_env)
     dispatcher = Dispatcher()
     run_mansion_main(mansion_env, dispatcher, args.iterations)
 
