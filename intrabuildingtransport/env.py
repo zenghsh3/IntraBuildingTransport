@@ -53,12 +53,15 @@ class IntraBuildingEnv():
         set_seed(seed)
 
     def step(self, action):
-        time_consume, energy_consume, given_up_persons = self._mansion.run_mansion(
+        time_consume, energy_consume, given_up_persons, info = self._mansion.run_mansion(
             action)
         reward = - (time_consume + 0.01 * energy_consume +
                     1000 * given_up_persons) * 1.0e-5
-        info = {}
-        return (self._mansion.state, self.reward, False, info)
+        
+        info = {'energy_consume_reward': np.array(info['each_energy_consume']) * -0.01,
+                'time_consume_reward': time_consume * -1,
+                'given_up_reward': given_up_persons * -1000}
+        return (self._mansion.state, reward, False, info)
 
     def reset(self):
         self._mansion.reset_env()
@@ -154,12 +157,16 @@ class RewardShapingWrapper(object):
                 self.elevator_last_opening_floor[i] = int(obs.ElevatorStates[i].Floor)
 
         self.last_obs = copy.deepcopy(obs)
-         
-        shaping_reward = deliver_reward + wrong_deliver_reward
+
+        origin_reward = info['energy_consume_reward'] + info['time_consume_reward'] / self.elevator_num + info['given_up_reward'] / self.elevator_num
+
+        shaping_reward = deliver_reward + wrong_deliver_reward + origin_reward * 0.001
+
         info['reward'] = reward 
         info['shaping_reward'] = shaping_reward
         info['deliver_reward'] = deliver_reward
         info['wrong_deliver_reward'] = wrong_deliver_reward
+        info['each_origin_reward'] = origin_reward
         #print(obs, reward, done, info)
         return (obs, reward, done, info)
 

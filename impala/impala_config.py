@@ -31,7 +31,7 @@ config = {
     'gamma': 0.99,
 
     # learning rate adjustment schedule: (train_step, learning_rate)
-    'lr_scheduler': [(0, 0.0005)],
+    'lr_scheduler': [(0, 0.00025)],
 
     # coefficient of policy entropy adjustment schedule: (train_step, coefficient)
     'entropy_coeff_scheduler': [(0, -0.01)],

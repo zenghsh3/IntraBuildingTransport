@@ -242,8 +242,11 @@ class MansionManager(object):
           self._abandoned_person.pop()
           self._cumulative_waiting_time.pop()
           self._cumulative_energy_consumption.pop()
+        
+        info = {}
+        info['each_energy_consume'] = energy_consumption
 
-        return cumulative_waiting_time, cumulative_energy_consumption, give_up_persons
+        return cumulative_waiting_time, cumulative_energy_consumption, give_up_persons, info
 
     def get_statistics(self):
         '''
